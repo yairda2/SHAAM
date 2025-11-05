@@ -1,0 +1,107 @@
+<div class="user-list-container">
+  <header class="page-header">
+    <h1>User Management</h1>
+    <button class="btn btn-primary" (click)="onAddUser()">
+      <span class="btn-icon">+</span>
+      Add User
+    </button>
+  </header>
+
+  <!-- Success and Error Messages -->
+  <div class="messages" *ngIf="successMessage || errorMessage">
+    <div class="alert alert-success" *ngIf="successMessage">
+      {{ successMessage }}
+    </div>
+    <div class="alert alert-error" *ngIf="errorMessage">
+      {{ errorMessage }}
+    </div>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div class="loading-spinner" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Loading users...</p>
+  </div>
+
+  <!-- Main Content -->
+  <div class="content-wrapper" *ngIf="!isLoading">
+    <!-- Search Bar -->
+    <div class="search-container">
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Search users by name, email, or company..."
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onSearchChange($event)"
+      />
+      <span class="search-icon">🔍</span>
+    </div>
+
+    <!-- User Form (shown when creating or editing) -->
+    <app-user-form
+      *ngIf="showForm"
+      [user]="selectedUser"
+      [isEditMode]="isEditMode"
+      (formSubmit)="onFormSubmit($event)"
+      (formCancel)="onFormCancel()"
+    ></app-user-form>
+
+    <!-- User Detail (shown when a user is selected and not editing) -->
+    <app-user-detail
+      *ngIf="selectedUser && !showForm"
+      [user]="selectedUser"
+      (editUser)="onEditUser($event)"
+      (deleteUser)="onDeleteUser($event)"
+    ></app-user-detail>
+
+    <!-- User List -->
+    <div class="users-grid">
+      <div
+        *ngFor="let user of filteredUsers; trackBy: trackByUserId"
+        class="user-card"
+        [class.selected]="selectedUser?.id === user.id"
+        (click)="onSelectUser(user)"
+      >
+        <div class="user-card-header">
+          <h3>{{ user.name }}</h3>
+        </div>
+        <div class="user-card-body">
+          <p class="user-email">
+            <span class="label">Email:</span>
+            {{ user.email }}
+          </p>
+          <p class="user-company" *ngIf="user.company">
+            <span class="label">Company:</span>
+            {{ user.company }}
+          </p>
+          <p class="user-phone" *ngIf="user.phone">
+            <span class="label">Phone:</span>
+            {{ user.phone }}
+          </p>
+        </div>
+        <div class="user-card-footer">
+          <button
+            class="btn btn-sm btn-secondary"
+            (click)="onEditUser(user); $event.stopPropagation()"
+          >
+            Edit
+          </button>
+          <button
+            class="btn btn-sm btn-danger"
+            (click)="onDeleteUser(user); $event.stopPropagation()"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" *ngIf="filteredUsers.length === 0 && !isLoading">
+        <p>No users found</p>
+        <p class="empty-state-subtitle" *ngIf="searchTerm">
+          Try adjusting your search criteria
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
